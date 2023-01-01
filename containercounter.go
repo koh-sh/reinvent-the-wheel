@@ -1,3 +1,5 @@
+//go:build ignore
+
 // https://github.com/koh-sh/iterm2-container-counter
 package main
 
