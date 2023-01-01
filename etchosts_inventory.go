@@ -39,8 +39,8 @@ func checkValidIp(ipaddress string) bool {
 	case ip.IsUnspecified():
 	case ip.Is6() && ip.IsGlobalUnicast():
 	case ip.String() == "255.255.255.255":
-	case ip.IsValid():
-		return true
+	default:
+		return ip.IsValid()
 	}
 	return false
 }
