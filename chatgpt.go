@@ -125,6 +125,7 @@ func main() {
 
 	http.HandleFunc("/", topHandler)
 	http.HandleFunc("/send", sendHandler)
+	log.Printf("Accepting Web access on 0.0.0.0:8080")
 	http.ListenAndServe(":8080", nil)
 
 }
