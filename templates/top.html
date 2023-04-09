@@ -6,10 +6,21 @@
 </head>
 <body>
 	<h1>Talk with ChatGPT on Go Web Server</h1>
+	<ul>
+	{{ range . }}
+		<li>You: {{.Input}}</li>
+		<li>ChatGPT: {{.Output}}</li>
+		<br>
+	{{ end }}
+	</ul>
 	<form action="/send" method="POST">
-		<label for="message">Message:</label><br>
-		<textarea name="message" id="message" rows="4" cols="50"></textarea><br>
+		<label for="message">You: </label>
+		<textarea name="message" id="message" rows="1" cols="35"></textarea>
 		<input type="submit" value="Send">
+	</form>
+	<br> <br>
+	<form action="/clear" method="POST">
+		<input type="submit" value="Clear Conversation History">
 	</form>
 </body>
 </html>

@@ -19,6 +19,8 @@ type Chat struct {
 	Output string
 }
 
+var conversation []Chat
+
 func parseOpenAIResponse(responseBody []byte) (string, error) {
 	var responseMap map[string]interface{}
 
@@ -88,7 +90,7 @@ func requestOpenAI(input string) string {
 func topHandler(w http.ResponseWriter, r *http.Request) {
 	log.Printf("Received request: %s %s", r.Method, r.URL.Path)
 	tmpl := template.Must(template.ParseFiles("templates/top.html"))
-	if err := tmpl.Execute(w, nil); err != nil {
+	if err := tmpl.Execute(w, conversation); err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
@@ -114,19 +116,24 @@ func sendHandler(w http.ResponseWriter, r *http.Request) {
 		Output: output,
 	}
 
-	tmpl := template.Must(template.ParseFiles("templates/log.html"))
-	if err := tmpl.Execute(w, chat); err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
-	}
+	conversation = append(conversation, chat)
+	http.Redirect(w, r, "/", http.StatusSeeOther)
 
+}
+
+func clearHandler(w http.ResponseWriter, r *http.Request) {
+	log.Printf("Received request: %s %s", r.Method, r.URL.Path)
+	log.Printf("Clearing conversation history")
+	conversation = nil
+	http.Redirect(w, r, "/", http.StatusSeeOther)
 }
 
 func main() {
 
 	http.HandleFunc("/", topHandler)
 	http.HandleFunc("/send", sendHandler)
-	log.Printf("Accepting Web access on 0.0.0.0:8080")
+	http.HandleFunc("/clear", clearHandler)
+	log.Printf("Accepting Web access on http://0.0.0.0:8080")
 	http.ListenAndServe(":8080", nil)
 
 }
