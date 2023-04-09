@@ -14,6 +14,11 @@ import (
 	"os"
 )
 
+type Chat struct {
+	Input  string
+	Output string
+}
+
 func parseOpenAIResponse(responseBody []byte) (string, error) {
 	var responseMap map[string]interface{}
 
@@ -81,6 +86,7 @@ func requestOpenAI(input string) string {
 }
 
 func topHandler(w http.ResponseWriter, r *http.Request) {
+	log.Printf("Received request: %s %s", r.Method, r.URL.Path)
 	tmpl := template.Must(template.ParseFiles("templates/top.html"))
 	if err := tmpl.Execute(w, nil); err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
@@ -89,6 +95,7 @@ func topHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func sendHandler(w http.ResponseWriter, r *http.Request) {
+	log.Printf("Received request: %s %s", r.Method, r.URL.Path)
 	if err := r.ParseForm(); err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
@@ -99,17 +106,18 @@ func sendHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	output := requestOpenAI(message)
+	chat := Chat{
+		Input:  message,
+		Output: output,
+	}
+
 	// メッセージをログに出力する
 	tmpl := template.Must(template.ParseFiles("templates/log.html"))
-	if err := tmpl.Execute(w, nil); err != nil {
+	if err := tmpl.Execute(w, chat); err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
-
-	output := requestOpenAI(message)
-	// ChatGPTからの応答を出力
-	// TODO: ページ内に出力したい
-	fmt.Println("ChatGPT:", output)
 
 }
 
