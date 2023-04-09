@@ -106,13 +106,14 @@ func sendHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	log.Printf("Sent Message to ChatGPT: %s", message)
 	output := requestOpenAI(message)
+	log.Printf("Answer from ChatGPT: %s", output)
 	chat := Chat{
 		Input:  message,
 		Output: output,
 	}
 
-	// メッセージをログに出力する
 	tmpl := template.Must(template.ParseFiles("templates/log.html"))
 	if err := tmpl.Execute(w, chat); err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
