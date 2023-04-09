@@ -3,16 +3,15 @@
 package main
 
 import (
-	"bufio"
 	"bytes"
 	"encoding/json"
 	"errors"
 	"fmt"
+	"html/template"
 	"io/ioutil"
 	"log"
 	"net/http"
 	"os"
-	"strings"
 )
 
 func parseOpenAIResponse(responseBody []byte) (string, error) {
@@ -30,19 +29,13 @@ func parseOpenAIResponse(responseBody []byte) (string, error) {
 	return content, nil
 }
 
-func main() {
+func requestOpenAI(input string) string {
 	DEBUG := false
 	// 環境変数からAPIキーを取得
 	apiKey := os.Getenv("OPENAI_API_KEY")
 
 	// OpenAIのエンドポイントURL
 	endpointURL := "https://api.openai.com/v1/chat/completions"
-
-	// ユーザーからの入力を受け取る
-	reader := bufio.NewReader(os.Stdin)
-	fmt.Print("You: ")
-	input, _ := reader.ReadString('\n')
-	input = strings.TrimSpace(input)
 
 	// APIリクエストのためのパラメータを設定
 	data := map[string]interface{}{
@@ -83,7 +76,47 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
+	return output
 
+}
+
+func topHandler(w http.ResponseWriter, r *http.Request) {
+	tmpl := template.Must(template.ParseFiles("templates/top.html"))
+	if err := tmpl.Execute(w, nil); err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+}
+
+func sendHandler(w http.ResponseWriter, r *http.Request) {
+	if err := r.ParseForm(); err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+	message := r.FormValue("message")
+	if message == "" {
+		http.Error(w, "empty message", http.StatusBadRequest)
+		return
+	}
+
+	// メッセージをログに出力する
+	tmpl := template.Must(template.ParseFiles("templates/log.html"))
+	if err := tmpl.Execute(w, nil); err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	output := requestOpenAI(message)
 	// ChatGPTからの応答を出力
+	// TODO: ページ内に出力したい
 	fmt.Println("ChatGPT:", output)
+
+}
+
+func main() {
+
+	http.HandleFunc("/", topHandler)
+	http.HandleFunc("/send", sendHandler)
+	http.ListenAndServe(":8080", nil)
+
 }
