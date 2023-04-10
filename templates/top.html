@@ -8,9 +8,10 @@
 	<h1>Talk with ChatGPT on Go Web Server</h1>
 	<ul>
 	{{ range . }}
-		<li>You: {{.Input}}</li>
-		<li>ChatGPT: {{.Output}}</li>
+		{{ if ne .role "system" }}
+		<li>{{.role}}: {{.content}} </li>
 		<br>
+		{{ end }}
 	{{ end }}
 	</ul>
 	<form action="/send" method="POST">
