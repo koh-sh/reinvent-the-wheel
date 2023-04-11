@@ -6,14 +6,11 @@
 </head>
 <body>
 	<h1>Talk with ChatGPT on Go Web Server</h1>
-	<ul>
 	{{ range . }}
 		{{ if ne .role "system" }}
-		<li>{{.role}}: {{.content}} </li>
-		<br>
+		<p> {{.role}}: {{.content}} </p>
 		{{ end }}
 	{{ end }}
-	</ul>
 	<form action="/send" method="POST">
 		<label for="message">You: </label>
 		<textarea name="message" id="message" rows="1" cols="35"></textarea>
