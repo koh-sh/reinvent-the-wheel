@@ -7,7 +7,9 @@ on:
         type: string
         description: 'version tag (vx.x.x)'
         required: true
-
+env:
+  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+  
 jobs:
   tag_push:
     runs-on: ubuntu-latest
@@ -16,7 +18,11 @@ jobs:
 
     - name: Push git tag
       run: |
-        git config user.name ${{ github.event.sender.name }}
-        git config user.email ${{ github.event.sender.email }}
-        git tag -a ${{ inputs.tag }} -m ${{ inputs.tag }}
-        git push origin ${{ inputs.tag }}
+        curl -s -X POST "https://api.github.com/repos/${{github.repository}}/git/refs" \
+        -H "Authorization: token $GITHUB_TOKEN" \
+        -d @- << EOS
+        {
+          "ref": "refs/tags/${{inputs.tag}}",
+          "sha": "${{github.sha}}"
+        }
+        EOS
