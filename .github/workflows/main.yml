@@ -16,6 +16,7 @@ jobs:
 
     - name: Push git tag
       run: |
-        echo ${{ github.event.sender }}
+        echo ${{ github.event.sender.name }}
+        echo ${{ github.event.sender.email }}
         git tag -a ${{ inputs.tag }} -m ${{ inputs.tag }}
         git push origin ${{ inputs.tag }}
