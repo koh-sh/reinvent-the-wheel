@@ -18,12 +18,10 @@ jobs:
 
     - name: Push git tag
       run: |
-        # https://qiita.com/gimKondo/items/00242811e30ab5ed60d0
-        curl -s -X POST "https://api.github.com/repos/${{github.repository}}/git/refs" \
-        -H "Authorization: token $GITHUB_TOKEN" \
-        -d @- << EOS
-        {
-          "ref": "refs/tags/${{inputs.tag}}",
-          "sha": "${{github.sha}}"
-        }
-        EOS
+        gh api \
+          --method POST \
+          -H "Accept: application/vnd.github+json" \
+          -H "X-GitHub-Api-Version: 2022-11-28" \
+          /repos/${{github.repository}}/git/refs \
+          -f ref="refs/tags/${{inputs.tag}}" \
+          -f sha="${{github.sha}}"
