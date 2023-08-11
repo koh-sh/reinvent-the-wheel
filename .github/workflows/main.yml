@@ -14,8 +14,6 @@ jobs:
   tag_push:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v3
-
     - name: Push git tag
       run: |
         gh api \
