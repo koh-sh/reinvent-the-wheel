@@ -16,5 +16,6 @@ jobs:
 
     - name: Push git tag
       run: |
+        echo ${{ github }}
         git tag -a ${{ inputs.tag }} -m ${{ inputs.tag }}
         git push origin ${{ inputs.tag }}
