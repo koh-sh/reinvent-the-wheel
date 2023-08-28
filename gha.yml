@@ -1,0 +1,12 @@
+env:
+  hoge: fuga
+
+jobs:
+  job1:
+  job2:
+    needs: job1
+    if: hoge
+  job3:
+    needs:
+      - job1
+      - job2
