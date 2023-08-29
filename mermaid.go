@@ -13,13 +13,52 @@ import (
 	"gopkg.in/yaml.v3"
 )
 
+type Workflow struct {
+	Jobs map[string]Job `yaml:"jobs"`
+}
+
 type Job struct {
 	Needs interface{} `yaml:"needs,omitempty"`
 	If    string      `yaml:"if,omitempty"`
 }
 
-type Workflow struct {
-	Jobs map[string]Job `yaml:"jobs"`
+type Dict struct {
+	Nodes []Node
+}
+
+type Node struct {
+	If    string
+	Needs []string
+	Ids   []string
+}
+
+func (n Node) dumpMermaidNode() string {
+	if len(n.Needs) == 0 {
+		return fmt.Sprintf("    %s(%s)", strings.Join(n.Ids, ""), strings.Join(n.Ids, "<br>"))
+	}
+	l := make([]string, len(n.Needs))
+	for _, v := range n.Needs {
+		l = append(l, fmt.Sprintf("    %s(%s) --> %s(%s)", v, v, strings.Join(n.Ids, ""), strings.Join(n.Ids, "<br>")))
+	}
+	return strings.Join(l, "\n")
+}
+
+func (n *Node) convNeedstoSlice(needs interface{}) {
+	switch t := needs.(type) {
+	case nil:
+		return
+	case []interface{}:
+		l := reflect.ValueOf(needs)
+		for i := 0; i < l.Len(); i++ {
+			s := fmt.Sprintf("%s", l.Index(i))
+			n.Needs = append(n.Needs, s)
+		}
+	case string:
+		s := fmt.Sprintf("%s", needs)
+		n.Needs = append(n.Needs, s)
+	default:
+		log.Fatalf("%T is not string or slice", t)
+	}
 }
 
 func main() {
