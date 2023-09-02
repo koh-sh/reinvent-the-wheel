@@ -22,7 +22,7 @@ type Job struct {
 	If    string      `yaml:"if,omitempty"`
 }
 
-type Dict struct {
+type Nodelist struct {
 	Nodes []Node
 }
 
